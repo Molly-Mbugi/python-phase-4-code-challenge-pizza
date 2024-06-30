@@ -37,6 +37,37 @@ def get_restaurants():
         }
         restaurant_list.append(restaurant_data)
     return jsonify(restaurant_list)
+ #Route for GET /restaurants/<int:id>
+@app.route("/restaurants/<int:id>", methods=["GET"])
+def get_restaurant(id):
+    restaurant = Restaurant.query.get(id)
+    if not restaurant:
+        abort(404, description="Restaurant not found")
+
+    restaurant_data = {
+        "id": restaurant.id,
+        "name": restaurant.name,
+        "address": restaurant.address,
+        "restaurant_pizzas": []
+    }
+
+    restaurant_pizzas = RestaurantPizza.query.filter_by(restaurant_id=id).all()
+    for rp in restaurant_pizzas:
+        pizza = Pizza.query.get(rp.pizza_id)
+        if pizza:
+            restaurant_data["restaurant_pizzas"].append({
+                "id": rp.id,
+                "restaurant_id": rp.restaurant_id,
+                "pizza_id": rp.pizza_id,
+                "price": rp.price,
+                "pizza": {
+                    "id": pizza.id,
+                    "name": pizza.name,
+                    "ingredients": pizza.ingredients
+                }
+            })
+
+    return jsonify(restaurant_data)
 
 
 if __name__ == "__main__":
