@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 from models import db, Restaurant, RestaurantPizza, Pizza
 from flask_migrate import Migrate
-from flask import Flask, request, make_response
+from flask import Flask, jsonify  # Import jsonify here
 from flask_restful import Api, Resource
 import os
 
@@ -24,6 +24,21 @@ api = Api(app)
 def index():
     return "<h1>Code challenge</h1>"
 
+# Route for GET /restaurants
+@app.route("/restaurants", methods=["GET"])
+def get_restaurants():
+    restaurants = Restaurant.query.all()
+    restaurant_list = []
+    for restaurant in restaurants:
+        restaurant_data = {
+            "id": restaurant.id,
+            "name": restaurant.name,
+            "address": restaurant.address
+        }
+        restaurant_list.append(restaurant_data)
+    return jsonify(restaurant_list)
+
 
 if __name__ == "__main__":
     app.run(port=5555, debug=True)
+
